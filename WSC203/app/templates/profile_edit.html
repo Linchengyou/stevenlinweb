@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+    <div class="col-md-4 col-md-offset-4">
+        <H3><b>{{ _('Profile Edit - Change Password') }}</b></H3>
+        <hr>
+        <div>
+            {% if form %}
+                <form class="form form-horizontal" method="post" role="form">
+                    {{ form.hidden_tag() }}{{ wtf.form_errors(form, hiddens="only") }}
+                    <div class="form-group">
+                        {{ wtf.form_field(form.new_pwd) }}
+                        {{ wtf.form_field(form.pwd_confirm) }}
+                    </div>
+                    <br>
+                    <div class="form-row text-right">
+                        <div class="col-12">
+                            {{ form.submit(class_="btn btn-primary") }}
+                        </div>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script type="text/javascript">
+        $(function () {
+            $('#profile').addClass('active');
+        });
+
+        let new_pwd = $('#new_pwd');
+        let pwd_confirm = $('#pwd_confirm');
+        function check_password() {
+            if (new_pwd.val() !== pwd_confirm.val()) {
+                pwd_confirm.css("background-color", '#FF8888');
+                alert("{{_("Password must match")}}");
+                return false;
+            } else {
+                pwd_confirm.css("background-color", 'transparent');
+            }
+        }
+        pwd_confirm.change(check_password);
+        $('form').submit(check_password)
+    </script>
+{% endblock %}

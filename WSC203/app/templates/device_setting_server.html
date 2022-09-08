@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+    <div class="col-md-4 col-md-offset-4">
+        <H3><b>{{ _('Device Setting') }}</b></H3>
+        <hr>
+        {% if form %}
+            <form class="form form-horizontal" method="post" role="form">
+                {{ form.hidden_tag() }}{{ wtf.form_errors(form, hiddens="only") }}
+                <div class="form-group">
+                    {% if mode == 1 %}
+                        {{ wtf.form_field(form.mode) }}
+                    {% else %}
+                        {{ wtf.form_field(form.mode, style='pointer-events:none; background-color:#EDEDED') }}
+                    {% endif %}
+                    {{ wtf.form_field(form.port) }}
+                    {{ wtf.form_field(form.modbus_type) }}
+                    {% if mode == 1 %}
+                        {{ wtf.form_field(form.max_conn) }}
+                    {% endif %}
+{#                    {{ wtf.form_field(form.inactivity_time) }}#}
+                    {{ wtf.form_field(form.tcp_alive_check_time) }}
+                    <div id="data"></div>
+                </div>
+                <br>
+                <div class="form-row text-right">
+                    <div class="col-12">
+                        {{ form.submit(class_="btn btn-primary") }}
+                    </div>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script type="text/javascript">
+        $(function () {
+            $('#server').addClass('active');
+        });
+
+        $('#mode').change(change_page);
+
+        function change_page() {
+            let mode = $('#mode').val();
+            if (mode != 0) {
+                window.location.replace("{{ url_for('func.server_setting') }}" + "?mode=" + mode)
+            }
+        }
+
+        let port_chk = true;
+        $('#port').change(function () {
+            let reg = /^([8][1-9]|[9][0-9]|[1-9][0-9]{2,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$/;
+            let port = $('#port');
+            if (!port.val().match(reg)) {
+                port.css("background-color", '#FF8888');
+                alert("{{_("Port範圍:81~65535")}}");
+                port_chk = false;
+            } else {
+                port.css("background-color", 'transparent');
+                port_chk = true;
+            }
+        });
+         /*
+        let inactivity_time_chk = true;
+        $('#inactivity_time').change(function () {
+            let reg = /^([0-9]|[1-9][0-9]{1,2}|[1-2][0-9]{3}|3[0-5][0-9]{2}|3600)$/;
+            let inactivity_time = $('#inactivity_time');
+            if (!inactivity_time.val().match(reg)) {
+                inactivity_time.css("background-color", '#FF8888');
+                alert("{{_("範圍:0~3600")}}");
+                inactivity_time_chk = false;
+            } else {
+                inactivity_time.css("background-color", 'transparent');
+                inactivity_time_chk = true;
+            }
+        });*/
+        let tcp_alive_check_time_chk = true;
+        $('#tcp_alive_check_time').change(function () {
+            let reg = /^([0-9]|[1][0-9]|20)$/;
+            let tcp_alive_check_time = $('#tcp_alive_check_time');
+            if (!tcp_alive_check_time.val().match(reg)) {
+                tcp_alive_check_time.css("background-color", '#FF8888');
+                alert("{{_("範圍:0~20 min")}}");
+                tcp_alive_check_time_chk = false;
+            } else {
+                tcp_alive_check_time.css("background-color", 'transparent');
+                tcp_alive_check_time_chk = true;
+            }
+        });
+
+        $('form').submit(function () {
+            if (port_chk && tcp_alive_check_time_chk) {
+            } else {
+                alert("{{_('Input error!')}}");
+                return false;
+            }
+        });
+    </script>
+{% endblock %}
