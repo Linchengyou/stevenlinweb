@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="F0:A0" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="F0:A0">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="dae@172.16.1.172:22 password (4)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/dae/wsc" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

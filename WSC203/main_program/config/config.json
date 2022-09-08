@@ -1,0 +1,37 @@
+{
+  "gpio": {
+    "tr_pin": 6,
+    "red_light_pin": 203,
+    "green_light_pin": 2
+  },
+  "uart": {
+    "uart2": {
+      "timeout": 0.5,
+      "baudrate": 38400,
+      "write_timeout": 0.5,
+      "port": "/dev/ttyS2"
+    },
+    "uart1": {
+      "timeout": 0.5,
+      "baudrate": 9600,
+      "write_timeout": 0.5,
+      "port": "/dev/ttyS1"
+    }
+  },
+  "mcu": {
+    "mode": 1,
+    "z_config": 1,
+    "baud_rate": 9600
+  },
+  "setting": {
+    "target_timeout": 5,
+    "max_conn": 4,
+    "target_port": 4001,
+    "modbus_type": 0,
+    "port": 4001,
+    "oper_mode": 0,
+    "tcp_alive_check_time": 7,
+    "inactivity_time": 0,
+    "target_ip": "192.168.1.235"
+  }
+}

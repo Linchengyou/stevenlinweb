@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+    <div class="col-md-4 col-md-offset-4">
+        <H3><b>{{ _('Serial Setting') }}</b></H3>
+        <hr>
+        {% if form %}
+            <form class="form form-horizontal" method="post" role="form">
+                {{ form.hidden_tag() }}{{ wtf.form_errors(form, hiddens="only") }}
+                <div class="form-group">
+                    {% if g.user.username == 'dae' %}
+                        {% if tcp_mode == 0 %}
+                            {{ wtf.form_field(form.protocol) }}
+                        {% else %}
+                            {{ wtf.form_field(form.protocol, style='pointer-events:none; background-color:#EDEDED') }}
+                        {% endif %}
+                        {{ wtf.form_field(form.baud_rate) }}
+                    {% else %}
+                        {% if form.protocol.data == 0 %}
+                            {{ wtf.form_field(form.baud_rate) }}
+                        {% else %}
+                            {{ wtf.form_field(form.baud_rate, style='pointer-events:none; background-color:#EDEDED') }}
+                        {% endif %}
+                    {% endif %}
+                    {{ wtf.form_field(form.timeout) }}
+                </div>
+                <br>
+                <div class="form-row text-right">
+                    <div class="col-12">
+                        {{ form.submit(class_="btn btn-primary") }}
+                    </div>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script type="text/javascript">
+        $(function () {
+            $('#serial').addClass('active');
+        });
+
+        let baud = $('#baud_rate');
+        let baud_tmp = baud.val();
+        let protocol = $('#protocol');
+        protocol.change(function () {
+            lock_baud()
+        });
+
+        function lock_baud() {
+            let protocol = document.getElementById('protocol');
+            if (typeof(protocol) != 'undefined' && protocol != null) {
+                if (protocol.value == 1) {
+                    baud.val(9600);
+                    baud.css('pointer-events', 'none');
+                    baud.css('background-color', '#EDEDED');
+                } else {
+                    baud.val(baud_tmp);
+                    baud.css('pointer-events', 'auto');
+                    baud.css('background-color', 'transparent');
+                }
+            }
+        }
+
+        window.onload = lock_baud;
+        let timeout_chk = true;
+        $('#timeout').change(function () {
+            let timeout = $('#timeout');
+            let re = /^[0-9]*[1-9][0-9]*$/;
+            if (!timeout.val().match(re) || timeout.val() < 10 || timeout.val() > 10000) {
+                timeout.css("background-color", '#FF8888');
+                alert("{{_("Timeout範圍(整數):10~10000 ms")}}");
+                timeout_chk = false;
+            } else {
+                timeout.css("background-color", 'transparent');
+                timeout_chk = true;
+            }
+        });
+        $('form').submit(function () {
+            if (timeout_chk) {
+            } else {
+                alert("{{_('Input error!')}}");
+                return false;
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends "bootstrap/base.html" %}
+{% block head %}
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="shortcut icon"
+          href="{{ url_for('static', sizes="32x32", filename = 'img/favicon.ico') }}" type="image/x-icon">
+    <link rel="icon"
+          href="{{ url_for('static', sizes="32x32", filename = 'img/favicon.ico') }}" type="image/x-icon">
+    {{ super() }}
+
+    <!--[if lt IE 9]>
+        <script src="{{ url_for('static', filename = 'js/html5shiv.min.js') }}"></script>
+        <script src="{{ url_for('static', filename = 'js/respond.min.js') }}"></script>
+    <![endif]-->
+{% endblock %}
+{% block title %}
+    {{ config['APP_NAME'] }} - Web Console
+{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <style type="text/css">
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, "微軟正黑體", sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        #wrap {
+            min-height: 100%;
+            height: auto;
+            margin: 0 auto -30px;
+            padding: 0 0 30px;
+        }
+
+        .footer {
+            color: white;
+            font-size: 14px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+
+{% endblock %}
+{% block body %}
+    <div id="wrap">
+        {% block navbar %}
+            <nav class="navbar navbar-expand-md navbar-dark bg-secondary">
+                <a class="navbar-brand" href="
+            {% if g.user.is_authenticated %}
+                {{ url_for('func.network_setting') }}
+            {% else %}
+                {{ url_for('auth.login') }}
+            {% endif %}">
+                    {{ config['APP_NAME'] }}
+                    <small>Version: {{ config['VERSION'] }}</small>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-toggle="collapse" aria-expanded="false"
+                        data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+                    <ul class="navbar-nav h5">
+                        {% if g.user.is_authenticated %}
+                            <li class="navbar-item" id="network">
+                                <a class="nav-link"
+                                   href="{{ url_for('func.network_setting') }}">{{ _('Network Setting') }}</a>
+                            </li>
+                            <li class="navbar-item" id="serial">
+                                <a class="nav-link"
+                                   href="{{ url_for('func.serial_setting') }}">{{ _('Serial Setting') }}</a>
+                            </li>
+                            <li class="navbar-item" id="server">
+                                <a class="nav-link"
+                                   href="{{ url_for('func.server_setting') }}">{{ _('Device Setting') }}</a>
+                            </li>
+                            <li class="navbar-item" id="test">
+                                <a class="nav-link"
+                                   href="{{ url_for('func.test_setting') }}">{{ _('test Setting') }}</a>
+                            </li>
+                            {% if g.user.username == 'admin' %}
+                                <li class="navbar-item" id="profile">
+                                    <a class="nav-link" href="{{ url_for('auth.profile') }}">{{ _('Profile Edit') }}</a>
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                        {% if g.user.username == 'dae' %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="navbarDropdown_eng"
+                                   href="#"
+                                   role="button" aria-expanded="false">
+                                    {{ _('Engineering Setting') }} <span class="caret"></span></a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" id="password_reset"
+                                           href="{{ url_for('auth.password_reset') }}">{{ _('User Password Reset') }}</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="navbarDropdown" href="#"
+                               role="button" aria-expanded="false">
+                                {{ session['lang_value'] }} <span class="caret"></span></a>
+
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                {% for key,lang in config['LANGUAGES'].items() %}
+                                    <li><a class="dropdown-item"
+                                           href="{{ url_for('func.lang_setting',lang_key=key,lang_value=lang) }}">
+                                        {{ lang }}
+                                    </a></li>
+                                    {% if not loop.last %}
+                                        <li class="dropdown-divider"></li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        {% if g.user.is_anonymous %}
+                            <li class="navbar-item">
+                                <a class="nav-link" href="{{ url_for('auth.login') }}">{{ _('Login') }}</a></li>
+                        {% else %}
+                            <li class="navbar-item">
+                                <a class="nav-link" href="{{ url_for('auth.logout') }}">{{ _('Logout') }}</a></li>
+                            <li class="navbar-item">
+                                <a class="nav-link" href="">【{{ g.user.username }}】</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </nav>
+        {% endblock %}
+
+        {% block content %}
+            <div class="container-fluid">
+                <div class="row justify-content-center mt-5">
+                    {% block app_content %}{% endblock %}
+                </div>
+                <br>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="row justify-content-center">
+                                <div class="col-md-4 col-md-offset-4 alert {{ category }}" role="alert">
+                                    <strong>{{ message }}</strong></div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+            </div>
+        {% endblock %}
+    </div>
+    <div class="footer bg-secondary">
+        Copyright &copy; 2019 DAE All rights reserved
+    </div>
+    {% block scripts %}
+        {{ super() }}
+        {#{ moment.include_moment(local_js='/static/js/moment-with-locales.min.js') }#}
+        <script>
+            $(function () {
+                setTimeout(function () {
+                    $('.alert').fadeOut("slow");
+                }, 2500); // <-- time in milliseconds
+            });
+        </script>
+    {% endblock %}
+{% endblock %}

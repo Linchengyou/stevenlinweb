@@ -1,0 +1,157 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}
+    {{ title }}
+{% endblock %}
+{% block head %}
+    {{ super() }}
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" charset="UTF-8">
+    <link rel="shortcut icon"
+          href="{{ url_for('static', sizes="32x32", filename = 'img/favicon.ico') }}" type="image/x-icon">
+    <link rel="icon"
+          href="{{ url_for('static', sizes="32x32", filename = 'img/favicon.ico') }}" type="image/x-icon">
+    <!--[if lt IE 9]>
+        <script src="{{ url_for('static', filename = 'js/html5shiv.min.js') }}"></script>
+        <script src="{{ url_for('static', filename = 'js/respond.min.js') }}"></script>
+    <![endif]-->
+    <style type="text/css">
+        body {
+            font-size: 18px;
+            font-family: Microsoft JhengHei;
+        }
+
+        fieldset {
+            border-radius: 8px;
+            border: 0;
+            padding: 10px;
+            margin-bottom: 30px;
+            background: #EEE;
+        }
+
+        legend {
+            font-size: 20px;
+            border-radius: 8px;
+            width: 13%;
+            padding: 5px 10px;
+            background-color: #4F709F;
+            color: #FFF;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div style="display:flex;justify-content:center;align-items:center;margin-top:10px;">
+        <div class="col-md-6">
+            <fieldset>
+                <legend>系 統 資 訊</legend>
+                <span>Gateway MAC Address: </span>{{ data['mac'] }}<br><br>
+                <span>MCU Version: </span><span id="sp_mcu"></span><br><br>
+                <span>ARM Version: </span><span id="sp_arm"></span><br><br>
+            </fieldset>
+            <fieldset>
+                <legend>設 備 測 試</legend>
+                <div style="width:49%;float:left;margin-right:2%;">
+                    {{ form.btn_start(class_="btn btn-success btn-block mr-2") }}
+                    <br>
+                </div>
+                <div style="width:49%;float:left">
+                    {{ form.btn_stop(class_="btn btn-success btn-block") }}
+                    <br>
+                </div>
+                <div style="clear:both" id="process_status"></div>
+                <br>
+                <div id="returndata"></div>
+            </fieldset>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script>
+        //啟動測試程式
+        $(function () {
+            $('#btn_start').click(function () {
+                $.ajax({
+                    url: '/QC/proc',
+                    method: 'GET',
+                    data: {do_type: ''},
+                    cache: false,
+                    error: function (xhr) {
+                        /*alert('button_start Ajax request 發生錯誤');*/
+                    },
+                    success: function (response) {
+                        $('#device_addr').html(response);
+                    }
+                });
+            });
+        });
+        //停止測試程式
+        $(function () {
+            $('#btn_stop').click(function () {
+                $.ajax({
+                    url: '/QC/proc',
+                    method: 'GET',
+                    data: {do_type: 'end'},
+                    cache: false,
+                    error: function (xhr) {
+                        /*alert('button_end Ajax request 發生錯誤');*/
+                    },
+                    success: function (response) {
+                        $('#device_addr').html(response);
+                    }
+                });
+            });
+        });
+        //檢查測試程式是否執行
+        $(function () {
+            var check_process = function () {
+                $.ajax({
+                    url: '/QC/proc',
+                    method: 'GET',
+                    data: {do_type: 'check'},
+                    cache: false,
+                    success: function (response) {
+                        if (response.result === 'run') {
+                            $('#process_status').html('測試程式執行狀態：啟動中，請稍後!');
+                        } else {
+                            $('#process_status').html('測試程式執行狀態：未啟動');
+                        }
+                    }
+                    //complete: function(){check_process();},
+                });
+            };
+            setInterval(check_process, 1000);
+            //setTimeout(check_process(),100);
+        });
+        //取得訊息回傳紀錄
+        $(function () {
+            var loadXMLDoc = function () {
+                $.ajax({
+                    url: '/QC/proc',
+                    method: 'GET',
+                    data: {do_type: 'get_resp'},
+                    cache: false,
+                    success: function (response) {
+                        $('#returndata').html(response);
+                    }
+                });
+            };
+            setInterval(loadXMLDoc, 1000);
+        });
+        $(function () {
+            var loadXMLDoc1 = function () {
+                $.ajax({
+                    url: '/QC/proc',
+                    method: 'GET',
+                    data: {do_type: 'get_version'},
+                    cache: false,
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#sp_mcu').html(data["MCU"]);
+                        $('#sp_arm').html(data["ARM"]);
+                    }
+                });
+            };
+            setInterval(loadXMLDoc1, 5000);
+        })
+    </script>
+{% endblock %}
